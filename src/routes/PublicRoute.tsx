@@ -1,9 +1,16 @@
-import type{ ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
-interface Props {
-  children: ReactNode;
-}
+export default function PublicRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const auth = useAuth();
 
-export default function PublicRoute({ children }: Props) {
+  if (auth?.user) {
+    return <Navigate to="/app/dashboard" />;
+  }
+
   return <>{children}</>;
 }

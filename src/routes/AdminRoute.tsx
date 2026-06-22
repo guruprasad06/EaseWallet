@@ -1,9 +1,16 @@
-import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
-interface Props {
-  children: ReactNode;
-}
+export default function AdminRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const auth = useAuth();
 
-export default function AdminRoute({ children }: Props) {
+  if (auth?.user?.role !== "admin") {
+    return <Navigate to="/app/dashboard" />;
+  }
+
   return <>{children}</>;
 }

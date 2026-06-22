@@ -1,6 +1,8 @@
-import { Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import ProtectedRoute from "./ProtectedRoute";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import AppLayout from "../layouts/AppLayout";
 
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
@@ -18,13 +20,51 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-          <Route path="/app/dashboard" element={<ProtectedRoute><DashboardPage/></ProtectedRoute> }/>
-        <Route path="/app/vault" element={<ProtectedRoute><MyVaultPage /></ProtectedRoute>}/>
- 
-        <Route path="/app/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}/>
+        <Route
+  path="/app/dashboard"
+  element={
+    <ProtectedRoute>
+      <AppLayout>
+        <DashboardPage />
+      </AppLayout>
+    </ProtectedRoute>
+  }
+/>
 
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route
+  path="/app/vault"
+  element={
+    <ProtectedRoute>
+      <AppLayout>
+        <MyVaultPage />
+      </AppLayout>
+    </ProtectedRoute>
+  }
+/>
+
+        <Route
+  path="/app/profile"
+  element={
+    <ProtectedRoute>
+      <AppLayout>
+        <ProfilePage />
+      </AppLayout>
+    </ProtectedRoute>
+  }
+/>
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <AdminDashboardPage />
+              </AppLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

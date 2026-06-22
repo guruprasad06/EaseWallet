@@ -1,4 +1,5 @@
 import Sidebar from "../components/layout-ui/Sidebar";
+import Header from "../components/layout-ui/Header";
 
 export default function AppLayout({
   children,
@@ -6,12 +7,16 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-zinc-950">
+    <div className="flex bg-zinc-950 min-h-screen">
       <Sidebar />
 
-      <main className="flex-1 p-8 text-white">
-        {children}
-      </main>
+      <div className="flex-1">
+        <Header />
+
+        <main className="p-8 text-white">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
