@@ -1,9 +1,35 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import { loginUser } from "../../services/authService";
 
 export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const data = await loginUser(
+        email,
+        password
+      );
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
+      auth?.setUser(data.user);
+
+      navigate("/app/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Invalid Credentials");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-950">
@@ -15,27 +41,26 @@ export default function LoginPage() {
         <input
           type="email"
           placeholder="Email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
           className="w-full p-3 mb-4 rounded bg-zinc-800 text-white"
         />
 
         <input
           type="password"
           placeholder="Password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
           className="w-full p-3 mb-4 rounded bg-zinc-800 text-white"
         />
 
         <button
+          onClick={handleLogin}
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg"
-          onClick={() => {
-            auth?.setUser({
-              id: "1",
-              name: "Demo User",
-              email: "demo@easewallet.com",
-              role: "user",
-            });
-
-            navigate("/app/dashboard");
-          }}
         >
           Sign In
         </button>
