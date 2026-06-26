@@ -10,20 +10,54 @@ export default function MyVaultPage() {
   const [type, setType] = useState("note");
   const [content, setContent] = useState("");
 
+  // Fetch Vault Items
+  const fetchVaultItems = async () => {
+    try {
+      const data = await vaultService.getItems();
+      setItems(data);
+    } catch (error) {
+      console.error("Failed to fetch vault items:", error);
+    }
+  };
+
+  // Load items when page opens
   useEffect(() => {
-    const fetchVaultItems = async () => {
-      try {
-        const data = await vaultService.getItems();
-        setItems(data);
-      } catch (error) {
-        console.error("Failed to load vault items:", error);
-      } finally {
-        setLoading(false);
-      }
+    const loadData = async () => {
+      await fetchVaultItems();
+      setLoading(false);
     };
 
-    fetchVaultItems();
+    loadData();
   }, []);
+
+  // Create Note
+  const handleCreateNote = async () => {
+    if (!title || !content) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    try {
+      await vaultService.createItem({
+        title,
+        type,
+        content,
+      });
+
+      // Clear form
+      setTitle("");
+      setType("note");
+      setContent("");
+
+      // Refresh vault
+      await fetchVaultItems();
+
+      alert("Note Added Successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to create note");
+    }
+  };
 
   if (loading) {
     return (
@@ -72,14 +106,15 @@ export default function MyVaultPage() {
         </select>
 
         <textarea
+          rows={5}
           placeholder="Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={5}
           className="w-full p-3 mb-4 rounded bg-zinc-800 text-white"
         />
 
         <button
+          onClick={handleCreateNote}
           className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold"
         >
           Save Note
@@ -112,11 +147,9 @@ export default function MyVaultPage() {
                 {item.type}
               </p>
 
-              {item.content && (
-                <p className="mt-4 text-sm text-zinc-300">
-                  {item.content}
-                </p>
-              )}
+              <p className="mt-4 text-sm text-zinc-300">
+                {item.content}
+              </p>
             </div>
           ))}
         </div>
