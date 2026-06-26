@@ -32,8 +32,32 @@ const getVaultItems = async (req, res) => {
     });
   }
 };
+const Vault = require("../models/VaultItem");
+
+const deleteVaultItem = async (req, res) => {
+  try {
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Item not found",
+      });
+    }
+
+    await item.deleteOne();
+
+    res.json({
+      message: "Item deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   createVaultItem,
   getVaultItems,
+  deleteVaultItem,
 };
