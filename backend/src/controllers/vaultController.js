@@ -64,9 +64,41 @@ const deleteVaultItem = async (req, res) => {
     });
   }
 };
+const updateVaultItem = async (req, res) => {
+  try {
+    const { title, type, content } = req.body;
+
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Vault item not found",
+      });
+    }
+
+    if (item.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    item.title = title;
+    item.type = type;
+    item.content = content;
+
+    const updatedItem = await item.save();
+
+    res.status(200).json(updatedItem);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   createVaultItem,
   getVaultItems,
   deleteVaultItem,
+  updateVaultItem,
 };
