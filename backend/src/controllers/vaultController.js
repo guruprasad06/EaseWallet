@@ -1,5 +1,6 @@
 const VaultItem = require("../models/VaultItem");
 
+// Create Vault Item
 const createVaultItem = async (req, res) => {
   try {
     const { title, type, content } = req.body;
@@ -19,35 +20,43 @@ const createVaultItem = async (req, res) => {
   }
 };
 
+// Get Vault Items
 const getVaultItems = async (req, res) => {
   try {
     const items = await VaultItem.find({
       userId: req.user.id,
     });
 
-    res.json(items);
+    res.status(200).json(items);
   } catch (error) {
     res.status(500).json({
       message: error.message,
     });
   }
 };
-const Vault = require("../models/VaultItem");
 
+// Delete Vault Item
 const deleteVaultItem = async (req, res) => {
   try {
     const item = await VaultItem.findById(req.params.id);
 
     if (!item) {
       return res.status(404).json({
-        message: "Item not found",
+        message: "Vault item not found",
+      });
+    }
+
+    // Security check - only owner can delete
+    if (item.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized",
       });
     }
 
     await item.deleteOne();
 
-    res.json({
-      message: "Item deleted successfully",
+    res.status(200).json({
+      message: "Vault item deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
