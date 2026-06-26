@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { vaultService } from "../../services/vaultService";
 
+
 export default function MyVaultPage() {
   const [items, setItems] = useState<any[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [title, setTitle] = useState("");
@@ -29,31 +31,44 @@ export default function MyVaultPage() {
   }, []);
 
   // Create Note
-  const handleCreateNote = async () => {
-    if (!title || !content) {
-      alert("Please fill all fields");
-      return;
-    }
+const handleCreateNote = async () => {
+  if (!title || !content) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    try {
+  try {
+    if (editingId) {
+      await vaultService.updateItem(editingId, {
+        title,
+        type,
+        content,
+      });
+
+      alert("Note Updated Successfully!");
+    } else {
       await vaultService.createItem({
         title,
         type,
         content,
       });
 
-      setTitle("");
-      setType("note");
-      setContent("");
-
-      await fetchVaultItems();
-
       alert("Note Added Successfully!");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create note");
     }
-  };
+
+    // Reset Form
+    setEditingId(null);
+    setTitle("");
+    setType("note");
+    setContent("");
+
+    // Refresh Vault
+    await fetchVaultItems();
+  } catch (error) {
+    console.error(error);
+    alert("Operation Failed");
+  }
+};
 
   // Delete Note
   const handleDelete = async (id: string) => {
@@ -74,7 +89,14 @@ export default function MyVaultPage() {
       alert("Failed to delete item");
     }
   };
+// Edit Note
+const handleEdit = (item: any) => {
+  setEditingId(item._id);
 
+  setTitle(item.title);
+  setType(item.type);
+  setContent(item.content);
+};
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
@@ -99,9 +121,9 @@ export default function MyVaultPage() {
 
       {/* Add Note */}
       <div className="bg-zinc-900 p-6 rounded-xl mb-8">
-        <h2 className="text-2xl font-bold mb-4">
-          Add New Note
-        </h2>
+       <h2 className="text-2xl font-bold mb-4">
+  {editingId ? "Edit Note" : "Add New Note"}
+</h2>
 
         <input
           type="text"
@@ -129,12 +151,12 @@ export default function MyVaultPage() {
           className="w-full p-3 rounded bg-zinc-800 mb-4"
         />
 
-        <button
-          onClick={handleCreateNote}
-          className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg"
-        >
-          Save Note
-        </button>
+      <button
+  onClick={handleCreateNote}
+  className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg"
+>
+  {editingId ? "Update Note" : "Save Note"}
+</button>
       </div>
 
       {/* Vault Items */}
@@ -169,12 +191,21 @@ export default function MyVaultPage() {
                 {item.content}
               </p>
 
-              <button
-                onClick={() => handleDelete(item._id)}
-                className="mt-6 w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg"
-              >
-                🗑 Delete
-              </button>
+          <div className="flex gap-2 mt-6">
+<button
+  onClick={() => handleEdit(item)}
+  className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-semibold"
+>
+  ✏ Edit
+</button>
+
+  <button
+    onClick={() => handleDelete(item._id)}
+    className="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold"
+  >
+    🗑 Delete
+  </button>
+</div>
 
             </div>
           ))}

@@ -34,6 +34,17 @@ export const vaultService = {
       },
     });
 
+
+    return response.data;
+  },
+
+  updateItem: async (id: string, item: any) => {
+    const response = await axios.put(`${API_URL}/${id}`, item, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
     return response.data;
   },
 };
