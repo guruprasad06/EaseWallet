@@ -219,9 +219,20 @@ const handleFileUpload = async (
                 {item.type}
               </p>
 
-              <p className="mt-4 text-sm">
-                {item.content}
-              </p>
+              {item.type === "document" ? (
+  <a
+href={`http://localhost:5000${item.content.startsWith("/") ? item.content : "/" + item.content}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-blue-400 underline mt-4 block"
+  >
+    📂 Open File
+  </a>
+) : (
+  <p className="mt-4 text-sm">
+    {item.content}
+  </p>
+)}
 
           <div className="flex gap-2 mt-6">
 <button

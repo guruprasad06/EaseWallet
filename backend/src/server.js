@@ -15,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/vault", vaultRoutes);
+app.use("/uploads", express.static("src/uploads"));
 
 const authRoutes = require("./routes/authRoutes");
 

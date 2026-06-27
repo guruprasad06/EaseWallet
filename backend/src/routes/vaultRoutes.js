@@ -41,7 +41,7 @@ async (req, res) => {
       userId: req.user.id,
       title: req.file.originalname,
       type: "document",
-      content: req.file.path,
+      content: "/uploads/" + req.file.filename,
     });
 
     res.status(201).json(item);
