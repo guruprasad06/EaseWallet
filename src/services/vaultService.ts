@@ -34,7 +34,6 @@ export const vaultService = {
       },
     });
 
-
     return response.data;
   },
 
@@ -44,6 +43,24 @@ export const vaultService = {
         Authorization: `Bearer ${getToken()}`,
       },
     });
+
+    return response.data;
+  },
+
+  uploadFile: async (file: File) => {
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    const response = await axios.post(
+      `${API_URL}/upload`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }
+    );
 
     return response.data;
   },

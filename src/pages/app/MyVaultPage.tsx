@@ -97,6 +97,24 @@ const handleEdit = (item: any) => {
   setType(item.type);
   setContent(item.content);
 };
+const handleFileUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  try {
+    await vaultService.uploadFile(file);
+
+    await fetchVaultItems();
+
+    alert("File uploaded successfully!");
+  } catch (error) {
+    console.error(error);
+    alert("Upload failed");
+  }
+};
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
@@ -114,9 +132,23 @@ const handleEdit = (item: any) => {
           My Vault
         </h1>
 
-        <button className="bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-lg">
-          Upload File
-        </button>
+    <>
+  <input
+    id="uploadFile"
+    type="file"
+    hidden
+    onChange={handleFileUpload}
+  />
+
+  <button
+    onClick={() =>
+      document.getElementById("uploadFile")?.click()
+    }
+    className="bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-lg"
+  >
+    Upload File
+  </button>
+</>
       </div>
 
       {/* Add Note */}
