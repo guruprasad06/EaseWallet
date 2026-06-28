@@ -218,6 +218,9 @@ const handleFileUpload = async (
               <p className="text-zinc-400 mt-2 capitalize">
                 {item.type}
               </p>
+              <p className="text-xs text-zinc-500 mt-1">
+  {new Date(item.createdAt).toLocaleString()}
+</p>
 
               {item.type === "document" ? (
   <a
