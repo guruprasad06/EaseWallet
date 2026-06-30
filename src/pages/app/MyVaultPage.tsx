@@ -10,6 +10,7 @@ export default function MyVaultPage() {
   const [title, setTitle] = useState("");
   const [type, setType] = useState("note");
   const [content, setContent] = useState("");
+  const [search, setSearch] = useState("");
 
   // Fetch Vault Items
   const fetchVaultItems = async () => {
@@ -115,6 +116,11 @@ const handleFileUpload = async (
     alert("Upload failed");
   }
 };
+const filteredItems = items.filter((item: any) =>
+  item.title.toLowerCase().includes(search.toLowerCase()) ||
+  (item.content ?? "").toLowerCase().includes(search.toLowerCase()) ||
+  item.type.toLowerCase().includes(search.toLowerCase())
+);
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
@@ -128,9 +134,15 @@ const handleFileUpload = async (
 
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">
-          My Vault
-        </h1>
+        <div>
+  <h1 className="text-3xl font-bold">
+    My Vault
+  </h1>
+
+  <p className="text-zinc-400 mt-1">
+    Total Items: {items.length}
+  </p>
+</div>
 
     <>
   <input
@@ -191,16 +203,26 @@ const handleFileUpload = async (
 </button>
       </div>
 
+<input
+  type="text"
+  placeholder="🔍 Search Vault..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full p-3 rounded-lg bg-zinc-800 mb-6 text-white"
+/>
       {/* Vault Items */}
+      
 
-      {items.length === 0 ? (
+      {filteredItems.length === 0 ? (
         <div className="text-center text-zinc-400">
-          No items in your vault.
+         {search
+  ? "No matching items found."
+  : "No items in your vault."}
         </div>
       ) : (
         <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
 
-          {items.map((item: any) => (
+          {filteredItems.map((item: any) => (
             <div
               key={item._id}
               className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500 transition"
@@ -224,7 +246,7 @@ const handleFileUpload = async (
 
               {item.type === "document" ? (
   <a
-href={`http://localhost:5000${item.content.startsWith("/") ? item.content : "/" + item.content}`}
+href={`http://localhost:5000${(item.content || "").startsWith("/") ? item.content : "/" + (item.content || "")}`}
     target="_blank"
     rel="noopener noreferrer"
     className="text-blue-400 underline mt-4 block"
