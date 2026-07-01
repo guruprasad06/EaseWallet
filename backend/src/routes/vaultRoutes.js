@@ -7,6 +7,7 @@ const {
   getVaultItems,
   deleteVaultItem,
   updateVaultItem,
+  togglePin
 } = require("../controllers/vaultController");
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get("/", protect, getVaultItems);
 router.delete("/:id", protect, deleteVaultItem);
 
 router.put("/:id", protect, updateVaultItem);
+router.patch("/:id/pin", protect, togglePin);
 const VaultItem = require("../models/VaultItem");
 
 router.post(

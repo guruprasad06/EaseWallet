@@ -90,6 +90,14 @@ const handleCreateNote = async () => {
       alert("Failed to delete item");
     }
   };
+  const handlePin = async (id: string) => {
+  try {
+    await vaultService.pinItem(id);
+    await fetchVaultItems();
+  } catch (error) {
+    console.error(error);
+  }
+};
 // Edit Note
 const handleEdit = (item: any) => {
   setEditingId(item._id);
@@ -222,7 +230,9 @@ const filteredItems = items.filter((item: any) =>
       ) : (
         <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
 
-          {filteredItems.map((item: any) => (
+          {filteredItems
+  .sort((a, b) => Number(b.isPinned) - Number(a.isPinned))
+  .map((item: any) => (
             <div
               key={item._id}
               className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500 transition"
@@ -260,6 +270,12 @@ href={`http://localhost:5000${(item.content || "").startsWith("/") ? item.conten
 )}
 
           <div className="flex gap-2 mt-6">
+            <button
+  onClick={() => handlePin(item._id)}
+  className="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg"
+>
+  {item.isPinned ? "📌" : "📍"}
+</button>
 <button
   onClick={() => handleEdit(item)}
   className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-semibold"

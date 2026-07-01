@@ -46,6 +46,19 @@ export const vaultService = {
 
     return response.data;
   },
+  pinItem: async (id: string) => {
+  const response = await axios.patch(
+    `${API_URL}/${id}/pin`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+
+  return response.data;
+},
 
   uploadFile: async (file: File) => {
     const formData = new FormData();

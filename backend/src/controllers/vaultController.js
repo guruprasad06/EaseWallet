@@ -95,10 +95,39 @@ const updateVaultItem = async (req, res) => {
     });
   }
 };
+const togglePin = async (req, res) => {
+  try {
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Vault item not found",
+      });
+    }
+
+    if (item.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    item.isPinned = !item.isPinned;
+
+    const updatedItem = await item.save();
+
+    res.status(200).json(updatedItem);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 
 module.exports = {
   createVaultItem,
   getVaultItems,
   deleteVaultItem,
   updateVaultItem,
+  togglePin,
 };

@@ -22,6 +22,10 @@ const vaultItemSchema = new mongoose.Schema(
     content: {
       type: String,
     },
+    isPinned: {
+  type: Boolean,
+  default: false,
+},
   },
   {
     timestamps: true,
