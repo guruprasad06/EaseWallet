@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { vaultService } from "../../services/vaultService";
+import type { VaultItem } from "../../types/vault.types";
 
 
 export default function MyVaultPage() {
@@ -8,9 +9,13 @@ export default function MyVaultPage() {
   const [loading, setLoading] = useState(true);
 
   const [title, setTitle] = useState("");
-  const [type, setType] = useState("note");
+  const [type, setType] = useState<VaultItem["type"]>("note");
   const [content, setContent] = useState("");
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Fetch Vault Items
   const fetchVaultItems = async () => {
@@ -83,6 +88,9 @@ const handleCreateNote = async () => {
       await vaultService.deleteItem(id);
 
       await fetchVaultItems();
+      setSelectedIds((currentIds) =>
+        currentIds.filter((selectedId) => selectedId !== id)
+      );
 
       alert("Item deleted successfully!");
     } catch (error) {
@@ -106,13 +114,13 @@ const handleEdit = (item: any) => {
   setType(item.type);
   setContent(item.content);
 };
-const handleFileUpload = async (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
-
-  if (!file) return;
-
+const handleCancelEdit = () => {
+  setEditingId(null);
+  setTitle("");
+  setType("note");
+  setContent("");
+};
+const uploadVaultFile = async (file: File) => {
   try {
     await vaultService.uploadFile(file);
 
@@ -124,11 +132,95 @@ const handleFileUpload = async (
     alert("Upload failed");
   }
 };
-const filteredItems = items.filter((item: any) =>
-  item.title.toLowerCase().includes(search.toLowerCase()) ||
-  (item.content ?? "").toLowerCase().includes(search.toLowerCase()) ||
-  item.type.toLowerCase().includes(search.toLowerCase())
-);
+const handleFileUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  await uploadVaultFile(file);
+};
+const handleFileDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  setIsDragging(false);
+
+  const file = e.dataTransfer.files?.[0];
+
+  if (!file) return;
+
+  await uploadVaultFile(file);
+};
+const handleSelectItem = (id: string) => {
+  setSelectedIds((currentIds) =>
+    currentIds.includes(id)
+      ? currentIds.filter((selectedId) => selectedId !== id)
+      : [...currentIds, id]
+  );
+};
+const handleDeleteSelected = async () => {
+  if (selectedIds.length === 0) return;
+
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete ${selectedIds.length} selected item(s)?`
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await Promise.all(selectedIds.map((id) => vaultService.deleteItem(id)));
+    await fetchVaultItems();
+    setSelectedIds([]);
+    alert("Selected items deleted successfully!");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete selected items");
+  }
+};
+const filteredItems = items.filter((item: any) => {
+  const matchesSearch =
+    item.title.toLowerCase().includes(search.toLowerCase()) ||
+    (item.content ?? "").toLowerCase().includes(search.toLowerCase()) ||
+    item.type.toLowerCase().includes(search.toLowerCase());
+
+  const matchesFilter =
+    filter === "all" || item.type === filter;
+
+  return matchesSearch && matchesFilter;
+});
+
+const totalItems = items.length;
+const totalNotes = items.filter((item: any) => item.type === "note").length;
+const totalDocuments = items.filter((item: any) => item.type === "document").length;
+const totalImages = items.filter((item: any) => item.type === "image").length;
+
+const sortedItems = [...filteredItems].sort((a: any, b: any) => {
+  const pinnedSort = Number(b.isPinned) - Number(a.isPinned);
+
+  if (pinnedSort !== 0) return pinnedSort;
+
+  if (sortOrder === "oldest") {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  }
+
+  if (sortOrder === "az") {
+    return a.title.localeCompare(b.title);
+  }
+
+  if (sortOrder === "za") {
+    return b.title.localeCompare(a.title);
+  }
+
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+});
+
+const isNewItem = (createdAt?: string) => {
+  const createdTime = new Date(createdAt ?? "").getTime();
+  const age = Date.now() - createdTime;
+
+  return !Number.isNaN(createdTime) && age >= 0 && age <= 24 * 60 * 60 * 1000;
+};
+
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-white">
@@ -152,7 +244,7 @@ const filteredItems = items.filter((item: any) =>
   </p>
 </div>
 
-    <>
+    <div className="flex flex-col items-end gap-3">
   <input
     id="uploadFile"
     type="file"
@@ -168,7 +260,47 @@ const filteredItems = items.filter((item: any) =>
   >
     Upload File
   </button>
-</>
+
+  <div
+    onDragEnter={(e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    }}
+    onDragOver={(e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    }}
+    onDragLeave={() => setIsDragging(false)}
+    onDrop={handleFileDrop}
+    className={`w-64 rounded-lg border-2 border-dashed bg-zinc-900 px-4 py-3 text-center text-sm text-zinc-400 transition ${
+      isDragging ? "border-indigo-500" : "border-zinc-700"
+    }`}
+  >
+    Drag & Drop files here or click Upload File
+  </div>
+</div>
+      </div>
+
+      <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-6 mb-8">
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
+          <p className="text-zinc-400 text-sm">Total Items</p>
+          <p className="text-3xl font-bold mt-2">{totalItems}</p>
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
+          <p className="text-zinc-400 text-sm">Notes</p>
+          <p className="text-3xl font-bold mt-2">{totalNotes}</p>
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
+          <p className="text-zinc-400 text-sm">Documents</p>
+          <p className="text-3xl font-bold mt-2">{totalDocuments}</p>
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
+          <p className="text-zinc-400 text-sm">Images</p>
+          <p className="text-3xl font-bold mt-2">{totalImages}</p>
+        </div>
       </div>
 
       {/* Add Note */}
@@ -187,7 +319,7 @@ const filteredItems = items.filter((item: any) =>
 
         <select
           value={type}
-          onChange={(e) => setType(e.target.value)}
+          onChange={(e) => setType(e.target.value as VaultItem["type"])}
           className="w-full p-3 rounded bg-zinc-800 mb-4"
         >
           <option value="note">Note</option>
@@ -203,12 +335,23 @@ const filteredItems = items.filter((item: any) =>
           className="w-full p-3 rounded bg-zinc-800 mb-4"
         />
 
-      <button
-  onClick={handleCreateNote}
-  className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg"
->
-  {editingId ? "Update Note" : "Save Note"}
-</button>
+    <div className="flex gap-3">
+  <button
+    onClick={handleCreateNote}
+    className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg"
+  >
+    {editingId ? "Update Note" : "Save Note"}
+  </button>
+
+  {editingId && (
+    <button
+      onClick={handleCancelEdit}
+      className="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded-lg"
+    >
+      Cancel
+    </button>
+  )}
+</div>
       </div>
 
 <input
@@ -218,6 +361,71 @@ const filteredItems = items.filter((item: any) =>
   onChange={(e) => setSearch(e.target.value)}
   className="w-full p-3 rounded-lg bg-zinc-800 mb-6 text-white"
 />
+<div className="flex flex-wrap gap-3 mb-6">
+  <button
+    onClick={() => setFilter("all")}
+    className={`px-4 py-2 rounded ${
+      filter === "all"
+        ? "bg-indigo-600"
+        : "bg-zinc-800 hover:bg-zinc-700"
+    }`}
+  >
+    All
+  </button>
+
+  <button
+    onClick={() => setFilter("note")}
+    className={`px-4 py-2 rounded ${
+      filter === "note"
+        ? "bg-indigo-600"
+        : "bg-zinc-800 hover:bg-zinc-700"
+    }`}
+  >
+    Notes
+  </button>
+
+  <button
+    onClick={() => setFilter("document")}
+    className={`px-4 py-2 rounded ${
+      filter === "document"
+        ? "bg-indigo-600"
+        : "bg-zinc-800 hover:bg-zinc-700"
+    }`}
+  >
+    Documents
+  </button>
+
+  <button
+    onClick={() => setFilter("image")}
+    className={`px-4 py-2 rounded ${
+      filter === "image"
+        ? "bg-indigo-600"
+        : "bg-zinc-800 hover:bg-zinc-700"
+    }`}
+  >
+    Images
+  </button>
+
+  <select
+    value={sortOrder}
+    onChange={(e) => setSortOrder(e.target.value)}
+    className="px-4 py-2 rounded bg-zinc-800 hover:bg-zinc-700 text-white"
+  >
+    <option value="newest">Newest First</option>
+    <option value="oldest">Oldest First</option>
+    <option value="az">A-Z</option>
+    <option value="za">Z-A</option>
+  </select>
+
+  {selectedIds.length > 0 && (
+    <button
+      onClick={handleDeleteSelected}
+      className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+    >
+      Delete Selected ({selectedIds.length})
+    </button>
+  )}
+</div>
       {/* Vault Items */}
       
 
@@ -230,18 +438,46 @@ const filteredItems = items.filter((item: any) =>
       ) : (
         <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
 
-          {filteredItems
-  .sort((a, b) => Number(b.isPinned) - Number(a.isPinned))
-  .map((item: any) => (
+          {sortedItems.map((item: any) => (
             <div
               key={item._id}
-              className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500 transition"
+              className="relative bg-zinc-900 p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500 transition"
             >
-              <div className="text-4xl mb-4">
-                {item.type === "document" && "📄"}
-                {item.type === "note" && "📝"}
-                {item.type === "image" && "🖼️"}
-              </div>
+              <input
+                type="checkbox"
+                checked={selectedIds.includes(item._id)}
+                onChange={() => handleSelectItem(item._id)}
+                className="absolute top-2 left-2 h-4 w-4 accent-indigo-600"
+              />
+
+              {isNewItem(item.createdAt) && (
+                <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                  NEW
+                </span>
+              )}
+
+              <div className="flex justify-between items-start mb-4">
+
+  <button
+    onClick={() => handlePin(item._id)}
+    className="text-2xl hover:scale-110 transition"
+  >
+    {item.isPinned ? "📌" : "📍"}
+  </button>
+
+
+
+  <button
+    onClick={() => {
+      navigator.clipboard.writeText(item.content || "");
+      alert("Copied!");
+    }}
+    className="text-xl hover:scale-110 transition"
+  >
+    📋
+  </button>
+
+</div>
 
               <h2 className="text-xl font-bold">
                 {item.title}
@@ -255,14 +491,26 @@ const filteredItems = items.filter((item: any) =>
 </p>
 
               {item.type === "document" ? (
+<div className="mt-4 flex gap-3">
+
   <a
-href={`http://localhost:5000${(item.content || "").startsWith("/") ? item.content : "/" + (item.content || "")}`}
+    href={`http://localhost:5000${item.content}`}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-blue-400 underline mt-4 block"
+    className="text-blue-400 underline"
   >
-    📂 Open File
+    📂 Open
   </a>
+
+  <a
+    href={`http://localhost:5000${item.content}`}
+    download
+    className="text-green-400 underline"
+  >
+    ⬇ Download
+  </a>
+
+</div>
 ) : (
   <p className="mt-4 text-sm">
     {item.content}
@@ -270,18 +518,15 @@ href={`http://localhost:5000${(item.content || "").startsWith("/") ? item.conten
 )}
 
           <div className="flex gap-2 mt-6">
-            <button
-  onClick={() => handlePin(item._id)}
-  className="bg-indigo-600 hover:bg-indigo-700 px-3 rounded-lg"
->
-  {item.isPinned ? "📌" : "📍"}
-</button>
+  
 <button
   onClick={() => handleEdit(item)}
   className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-semibold"
 >
   ✏ Edit
 </button>
+
+
 
   <button
     onClick={() => handleDelete(item._id)}

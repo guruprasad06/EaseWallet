@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { VaultItem, VaultItemInput } from "../types/vault.types";
 
 const API_URL = "http://localhost:5000/api/vault";
 
@@ -7,7 +8,7 @@ const getToken = () => {
 };
 
 export const vaultService = {
-  getItems: async () => {
+  getItems: async (): Promise<VaultItem[]> => {
     const response = await axios.get(API_URL, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -17,7 +18,7 @@ export const vaultService = {
     return response.data;
   },
 
-  createItem: async (item: any) => {
+  createItem: async (item: VaultItemInput): Promise<VaultItem> => {
     const response = await axios.post(API_URL, item, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -27,7 +28,7 @@ export const vaultService = {
     return response.data;
   },
 
-  deleteItem: async (id: string) => {
+  deleteItem: async (id: string): Promise<VaultItem> => {
     const response = await axios.delete(`${API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -37,7 +38,7 @@ export const vaultService = {
     return response.data;
   },
 
-  updateItem: async (id: string, item: any) => {
+  updateItem: async (id: string, item: VaultItemInput): Promise<VaultItem> => {
     const response = await axios.put(`${API_URL}/${id}`, item, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
@@ -46,7 +47,7 @@ export const vaultService = {
 
     return response.data;
   },
-  pinItem: async (id: string) => {
+  pinItem: async (id: string): Promise<VaultItem> => {
   const response = await axios.patch(
     `${API_URL}/${id}/pin`,
     {},
@@ -60,7 +61,7 @@ export const vaultService = {
   return response.data;
 },
 
-  uploadFile: async (file: File) => {
+  uploadFile: async (file: File): Promise<VaultItem> => {
     const formData = new FormData();
 
     formData.append("file", file);
