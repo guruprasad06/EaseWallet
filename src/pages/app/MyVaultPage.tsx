@@ -16,11 +16,12 @@ export default function MyVaultPage() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
 
   // Fetch Vault Items
   const fetchVaultItems = async () => {
     try {
-      const data = await vaultService.getItems();
+      const data = await vaultService.getItems(page, 12);     
       setItems(data);
     } catch (error) {
       console.error(error);
@@ -34,7 +35,7 @@ export default function MyVaultPage() {
     };
 
     loadData();
-  }, []);
+  }, [page]);
 
   // Create Note
 const handleCreateNote = async () => {
@@ -541,7 +542,25 @@ const isNewItem = (createdAt?: string) => {
 
         </div>
       )}
+<div className="flex justify-center gap-4 mt-8">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="bg-zinc-800 px-4 py-2 rounded"
+  >
+    Previous
+  </button>
 
+  <span>Page {page}</span>
+
+  <button
+    onClick={() => setPage(page + 1)}
+    className="bg-indigo-600 px-4 py-2 rounded"
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 }
+

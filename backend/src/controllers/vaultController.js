@@ -22,10 +22,16 @@ const createVaultItem = async (req, res) => {
 
 // Get Vault Items
 const getVaultItems = async (req, res) => {
+
+  //reads page and limit from req.query and clculate the skip use .skip(skip),limit(limit)
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 1;
+  const skip = (page - 1) * limit;
+
   try {
     const items = await VaultItem.find({
       userId: req.user.id,
-    });
+    }).skip(skip).limit(limit);
 
     res.status(200).json(items);
   } catch (error) {

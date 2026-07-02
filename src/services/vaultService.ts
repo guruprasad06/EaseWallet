@@ -8,16 +8,18 @@ const getToken = () => {
 };
 
 export const vaultService = {
-  getItems: async (): Promise<VaultItem[]> => {
-    const response = await axios.get(API_URL, {
+getItems: async (page = 1, limit = 12) => {
+  const response = await axios.get(
+    `${API_URL}?page=${page}&limit=${limit}`,
+    {
       headers: {
-        Authorization: `Bearer ${getToken()}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-    });
+    }
+  );
 
-    return response.data;
-  },
-
+  return response.data;
+},
   createItem: async (item: VaultItemInput): Promise<VaultItem> => {
     const response = await axios.post(API_URL, item, {
       headers: {
