@@ -1,4 +1,17 @@
 import { useEffect, useState } from "react";
+import {
+  Copy,
+  Download,
+  ExternalLink,
+  Pencil,
+  Pin,
+  PinOff,
+  Search,
+  Sparkles,
+  Trash2,
+  Upload,
+  UploadCloud,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { vaultService } from "../../services/vaultService";
 import type { VaultItem } from "../../types/vault.types";
@@ -370,8 +383,9 @@ const isNewItem = (createdAt?: string) => {
     onClick={() =>
       document.getElementById("uploadFile")?.click()
     }
-    className="bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-lg"
+    className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-5 py-2 rounded-lg"
   >
+    <Upload size={18} />
     Upload File
   </button>
 
@@ -390,6 +404,7 @@ const isNewItem = (createdAt?: string) => {
       isDragging ? "border-indigo-500" : "border-zinc-700"
     }`}
   >
+    <UploadCloud size={20} className="mx-auto mb-2" />
     Drag & Drop files here or click Upload File
   </div>
 </div>
@@ -468,13 +483,19 @@ const isNewItem = (createdAt?: string) => {
 </div>
       </div>
 
-<input
-  type="text"
-  placeholder="🔍 Search Vault..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  className="w-full p-3 rounded-lg bg-zinc-800 mb-6 text-white"
-/>
+<div className="relative mb-6">
+  <Search
+    size={18}
+    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+  />
+  <input
+    type="text"
+    placeholder="Search Vault..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full rounded-lg bg-zinc-800 p-3 pl-10 text-white"
+  />
+</div>
 <div className="flex flex-wrap gap-3 mb-6">
   <button
     onClick={() => setFilter("all")}
@@ -565,8 +586,9 @@ const isNewItem = (createdAt?: string) => {
               />
 
               {isNewItem(item.createdAt) && (
-                <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                  NEW
+                <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
+                  <Sparkles size={14} />
+                  New
                 </span>
               )}
 
@@ -574,9 +596,9 @@ const isNewItem = (createdAt?: string) => {
 
   <button
     onClick={() => handlePin(item._id)}
-    className="text-2xl hover:scale-110 transition"
+    className="inline-flex h-8 w-8 items-center justify-center text-zinc-300 hover:scale-110 hover:text-indigo-300 transition"
   >
-    {item.isPinned ? "📌" : "📍"}
+    {item.isPinned ? <Pin size={20} /> : <PinOff size={20} />}
   </button>
 
 
@@ -586,9 +608,9 @@ const isNewItem = (createdAt?: string) => {
       navigator.clipboard.writeText(item.content || "");
       toast.success("Copied!");
     }}
-    className="text-xl hover:scale-110 transition"
+    className="inline-flex h-8 w-8 items-center justify-center text-zinc-300 hover:scale-110 hover:text-indigo-300 transition"
   >
-    📋
+    <Copy size={20} />
   </button>
 
 </div>
@@ -611,17 +633,19 @@ const isNewItem = (createdAt?: string) => {
     href={`http://localhost:5000${item.content}`}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-blue-400 underline"
+    className="inline-flex items-center gap-1 text-blue-400 underline"
   >
-    📂 Open
+    <ExternalLink size={18} />
+    Open
   </a>
 
   <a
     href={`http://localhost:5000${item.content}`}
     download
-    className="text-green-400 underline"
+    className="inline-flex items-center gap-1 text-green-400 underline"
   >
-    ⬇ Download
+    <Download size={18} />
+    Download
   </a>
 
 </div>
@@ -635,18 +659,20 @@ const isNewItem = (createdAt?: string) => {
   
 <button
   onClick={() => handleEdit(item)}
-  className="flex-1 bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-semibold"
+  className="flex flex-1 items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 py-2 rounded-lg font-semibold"
 >
-  ✏ Edit
+  <Pencil size={18} />
+  Edit
 </button>
 
 
 
   <button
     onClick={() => handleDelete(item._id)}
-    className="flex-1 bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold"
+    className="flex flex-1 items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold"
   >
-    🗑 Delete
+    <Trash2 size={18} />
+    Delete
   </button>
 </div>
 
