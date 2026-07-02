@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { loginUser } from "../../services/authService";
@@ -27,7 +28,7 @@ export default function LoginPage() {
       navigate("/app/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Invalid Credentials");
+      toast.error("Invalid Credentials");
     }
   };
 

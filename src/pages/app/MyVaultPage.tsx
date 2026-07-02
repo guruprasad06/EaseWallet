@@ -1,6 +1,38 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { vaultService } from "../../services/vaultService";
 import type { VaultItem } from "../../types/vault.types";
+
+type DeleteConfirmation =
+  | { type: "single"; id: string }
+  | { type: "selected"; ids: string[] };
+
+type VaultDraft = {
+  title: string;
+  content: string;
+};
+
+const VAULT_DRAFT_KEY = "easewallet:vault-draft";
+
+const getVaultDraft = (): VaultDraft => {
+  try {
+    const draft = localStorage.getItem(VAULT_DRAFT_KEY);
+
+    if (!draft) {
+      return { title: "", content: "" };
+    }
+
+    const parsedDraft = JSON.parse(draft) as Partial<VaultDraft>;
+
+    return {
+      title: parsedDraft.title ?? "",
+      content: parsedDraft.content ?? "",
+    };
+  } catch (error) {
+    console.error(error);
+    return { title: "", content: "" };
+  }
+};
 
 
 export default function MyVaultPage() {
@@ -8,15 +40,18 @@ export default function MyVaultPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(() => getVaultDraft().title);
   const [type, setType] = useState<VaultItem["type"]>("note");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(() => getVaultDraft().content);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [page, setPage] = useState(1);
+  const [deleteConfirmation, setDeleteConfirmation] =
+    useState<DeleteConfirmation | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch Vault Items
   const fetchVaultItems = async () => {
@@ -37,10 +72,22 @@ export default function MyVaultPage() {
     loadData();
   }, [page]);
 
+  useEffect(() => {
+    if (!title && !content) {
+      localStorage.removeItem(VAULT_DRAFT_KEY);
+      return;
+    }
+
+    localStorage.setItem(
+      VAULT_DRAFT_KEY,
+      JSON.stringify({ title, content })
+    );
+  }, [title, content]);
+
   // Create Note
 const handleCreateNote = async () => {
   if (!title || !content) {
-    alert("Please fill all fields");
+    toast.error("Please fill all fields");
     return;
   }
 
@@ -52,7 +99,7 @@ const handleCreateNote = async () => {
         content,
       });
 
-      alert("Note Updated Successfully!");
+      toast.success("Note Updated Successfully!");
     } else {
       await vaultService.createItem({
         title,
@@ -60,10 +107,11 @@ const handleCreateNote = async () => {
         content,
       });
 
-      alert("Note Added Successfully!");
+      toast.success("Note Added Successfully!");
     }
 
     // Reset Form
+    localStorage.removeItem(VAULT_DRAFT_KEY);
     setEditingId(null);
     setTitle("");
     setType("note");
@@ -73,18 +121,16 @@ const handleCreateNote = async () => {
     await fetchVaultItems();
   } catch (error) {
     console.error(error);
-    alert("Operation Failed");
+    toast.error("Operation Failed");
   }
 };
 
   // Delete Note
   const handleDelete = async (id: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
+    setDeleteConfirmation({ type: "single", id });
+  };
 
-    if (!confirmDelete) return;
-
+  const confirmSingleDelete = async (id: string) => {
     try {
       await vaultService.deleteItem(id);
 
@@ -93,12 +139,13 @@ const handleCreateNote = async () => {
         currentIds.filter((selectedId) => selectedId !== id)
       );
 
-      alert("Item deleted successfully!");
+      toast.success("Item deleted successfully!");
     } catch (error) {
       console.error(error);
-      alert("Failed to delete item");
+      toast.error("Failed to delete item");
     }
   };
+
   const handlePin = async (id: string) => {
   try {
     await vaultService.pinItem(id);
@@ -127,10 +174,10 @@ const uploadVaultFile = async (file: File) => {
 
     await fetchVaultItems();
 
-    alert("File uploaded successfully!");
+    toast.success("File uploaded successfully!");
   } catch (error) {
     console.error(error);
-    alert("Upload failed");
+    toast.error("Upload failed");
   }
 };
 const handleFileUpload = async (
@@ -162,22 +209,47 @@ const handleSelectItem = (id: string) => {
 const handleDeleteSelected = async () => {
   if (selectedIds.length === 0) return;
 
-  const confirmDelete = window.confirm(
-    `Are you sure you want to delete ${selectedIds.length} selected item(s)?`
-  );
+  setDeleteConfirmation({ type: "selected", ids: selectedIds });
+};
 
-  if (!confirmDelete) return;
-
+const confirmSelectedDelete = async (ids: string[]) => {
   try {
-    await Promise.all(selectedIds.map((id) => vaultService.deleteItem(id)));
+    await Promise.all(ids.map((id) => vaultService.deleteItem(id)));
     await fetchVaultItems();
     setSelectedIds([]);
-    alert("Selected items deleted successfully!");
+    toast.success("Selected items deleted successfully!");
   } catch (error) {
     console.error(error);
-    alert("Failed to delete selected items");
+    toast.error("Failed to delete selected items");
   }
 };
+
+const closeDeleteConfirmation = () => {
+  if (isDeleting) return;
+
+  setDeleteConfirmation(null);
+};
+
+const confirmDelete = async () => {
+  if (!deleteConfirmation) return;
+
+  setIsDeleting(true);
+
+  if (deleteConfirmation.type === "single") {
+    await confirmSingleDelete(deleteConfirmation.id);
+  } else {
+    await confirmSelectedDelete(deleteConfirmation.ids);
+  }
+
+  setIsDeleting(false);
+  setDeleteConfirmation(null);
+};
+
+const deleteConfirmationMessage =
+  deleteConfirmation?.type === "selected"
+    ? `Are you sure you want to delete ${deleteConfirmation.ids.length} selected item(s)?`
+    : "Are you sure you want to delete this item?";
+
 const filteredItems = items.filter((item: any) => {
   const matchesSearch =
     item.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -232,6 +304,47 @@ const isNewItem = (createdAt?: string) => {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
+      {deleteConfirmation && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-confirmation-title"
+        >
+          <div className="w-full max-w-md rounded-lg border border-zinc-800 bg-zinc-900 p-6 shadow-2xl">
+            <h2
+              id="delete-confirmation-title"
+              className="text-xl font-bold text-white"
+            >
+              Confirm Delete
+            </h2>
+
+            <p className="mt-3 text-sm text-zinc-300">
+              {deleteConfirmationMessage}
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteConfirmation}
+                disabled={isDeleting}
+                className="rounded bg-zinc-800 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
@@ -471,7 +584,7 @@ const isNewItem = (createdAt?: string) => {
   <button
     onClick={() => {
       navigator.clipboard.writeText(item.content || "");
-      alert("Copied!");
+      toast.success("Copied!");
     }}
     className="text-xl hover:scale-110 transition"
   >
