@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import {Link} from "react-router-dom";
 import { loginUser } from "../../services/authService";
 
 export default function LoginPage() {
@@ -65,6 +66,15 @@ export default function LoginPage() {
         >
           Sign In
         </button>
+        <p className="mt-6 text-center text-zinc-400">
+  Don't have an account?{" "}
+  <Link
+    to="/register"
+    className="text-indigo-400 hover:text-indigo-300 font-semibold"
+  >
+    Sign Up
+  </Link>
+</p>
       </div>
     </div>
   );
