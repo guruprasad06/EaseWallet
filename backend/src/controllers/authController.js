@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
         message: "Invalid credentials",
       });
     }
-
+console.log("User role:", user.role); // Log the user's role for debugging
     const token = jwt.sign(
       {
         id: user._id,

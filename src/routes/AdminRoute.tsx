@@ -9,7 +9,7 @@ export default function AdminRoute({
   const auth = useAuth();
 
   if (auth?.user?.role !== "admin") {
-    return <Navigate to="/app/dashboard" />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   return <>{children}</>;
