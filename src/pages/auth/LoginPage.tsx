@@ -12,7 +12,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // change the dash bordas per the role lie admin navigate to naviagte("/admin/dashboard") 
   const handleLogin = async () => {
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
     try {
       const data = await loginUser(
         email,
@@ -24,9 +30,16 @@ export default function LoginPage() {
         data.token
       );
 
-      auth?.setUser(data.user);
+    
 
-      navigate("/app/dashboard");
+      auth?.setUser(data.user);
+if(data.user.role ==="admin"){
+  navigate("/admin/dashboard");
+}
+else if(data.user.role==="user"){
+  navigate("/app/dashboard");
+}
+      
     } catch (error) {
       console.error(error);
       toast.error("Invalid Credentials");

@@ -1,9 +1,11 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
+
 export default function Sidebar() {
   const auth = useAuth();
   const navigate = useNavigate();
+  const dashboardLink=auth?.user?.role==="admin"?"admin/dashboard":"app/dashboard";
 
   return (
     <div className="w-64 min-h-screen bg-zinc-900 text-white p-6">
@@ -13,7 +15,7 @@ export default function Sidebar() {
 
       <nav className="flex flex-col gap-4">
         <NavLink
-          to="/app/dashboard"
+          to={`/${dashboardLink}`}
           className={({ isActive }) =>
             isActive
               ? "bg-indigo-600 p-3 rounded"
