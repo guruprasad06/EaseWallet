@@ -25,3 +25,21 @@ export const deleteUser = async(userId:string) => {
 
     return response.data;
   };
+  export const updateUserRole = async (
+  userId: string,
+  role: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.patch(
+    `${API_URL}/${userId}/role`,
+    { role },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
