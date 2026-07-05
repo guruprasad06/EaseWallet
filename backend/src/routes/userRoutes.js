@@ -1,8 +1,8 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
-const { getAllUsers } = require("../controllers/userController");
 const router = express.Router();
-const admin=require("../middleware/adminMiddleware");
+const admin = require("../middleware/adminMiddleware");
+const { getAllUsers, deleteUser } = require("../controllers/userController");
 
 router.get(
   "/profile",
@@ -16,5 +16,6 @@ router.get(
 );
 router.get("/all", protect, admin, getAllUsers);
 
+router.delete("/:id", protect, admin, deleteUser);
 
 module.exports = router;
