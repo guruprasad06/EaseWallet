@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllUsers } from "../../services/userService";
+import { deleteUser } from "../../services/userService";
 
 type User = {
   _id: string;
@@ -23,16 +24,27 @@ export default function UsersPage() {
     };
 
     
-// delete backend remove that user from users state filter it 
+
+
 
     fetchUsers();
   }, []);
-const filteredUsers = users.filter((user) => (
-  user.name.toLowerCase().includes(search.toLowerCase()) ||
-  user.email.toLowerCase().includes(search.toLowerCase()) ||
-  user.role.toLowerCase().includes(search.toLowerCase())
-));
-      
+const filteredUsers = users.filter(
+  (user) =>
+    user.name.toLowerCase().includes(search.toLowerCase()) ||
+    user.email.toLowerCase().includes(search.toLowerCase()) ||
+    user.role.toLowerCase().includes(search.toLowerCase())
+);
+
+const handleDelete = async (id: string) => {
+  try {
+    await deleteUser(id);
+
+    setUsers((prev) => prev.filter((user) => user._id !== id));
+  } catch (error) {
+    console.error(error);
+  }
+}; 
 
   return (
   <div>
@@ -54,6 +66,7 @@ const filteredUsers = users.filter((user) => (
           <th className="p-3 text-left">Name</th>
           <th className="p-3 text-left">Email</th>
           <th className="p-3 text-left">Role</th>
+          <th className="p-3 text-left">Actions</th>
         </tr>
       </thead>
 <tbody>
@@ -62,6 +75,14 @@ const filteredUsers = users.filter((user) => (
             <td className="p-3">{user.name}</td>
             <td className="p-3">{user.email}</td>
             <td className="p-3">{user.role}</td>
+            <td className="p-3">
+  <button
+    onClick={() => handleDelete(user._id)}
+    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+  >
+    Delete
+  </button>
+</td>
           </tr>
         ))}
       </tbody>

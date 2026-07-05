@@ -14,7 +14,7 @@ export const getAllUsers = async () => {
   return response.data;
 };
 
-export const deleteUsers = async(userId:string) => {
+export const deleteUser = async(userId:string) => {
     const token = localStorage.getItem("token");
 
     const response = await axios.delete(`${API_URL}/${userId}`, {
