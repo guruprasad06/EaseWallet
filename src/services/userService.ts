@@ -43,3 +43,21 @@ export const deleteUser = async(userId:string) => {
 
   return response.data;
 };
+export const updatedUserStatus = async (
+  userId: string,
+  isSuspended: boolean
+) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.patch(
+    `${API_URL}/${userId}/status`,
+    { isSuspended },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};

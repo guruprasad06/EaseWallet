@@ -3,6 +3,7 @@ import {
   getAllUsers,
   deleteUser,
   updateUserRole,
+  updateUserStatus,
 } from "../../services/userService";
 import toast from "react-hot-toast";
 
@@ -11,6 +12,7 @@ type User = {
   name: string;
   email: string;
   role: string;
+  isSuspended: boolean;
 };
 
 export default function UsersPage() {
@@ -80,6 +82,7 @@ const handleDelete = (user: User) => {
       duration: 5000,
     }
   );
+  
 };
 
 const handleRoleChange = (user: User, newRole: string) => {
@@ -111,6 +114,62 @@ const handleRoleChange = (user: User, newRole: string) => {
               } catch (error) {
                 toast.dismiss(t.id);
                 toast.error("Failed to update role");
+              }
+            }}
+          >
+            Yes
+          </button>
+
+          <button
+            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            No
+          </button>
+        </div>
+      </div>
+    ),
+    {
+      duration: 5000,
+    }
+  );
+};
+const handleStatus = (user: User) => {
+  const newStatus = !user.isSuspended;
+  const actionText = newStatus ? "suspend" : "activate";
+
+  toast(
+    (t) => (
+      <div>
+        <p className="mb-3">
+          Are you sure you want to {actionText}{" "}
+          <strong>{user.name}</strong>?
+        </p>
+
+        <div className="flex gap-2">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+            onClick={async () => {
+              try {
+                await updateUserStatus(user._id, newStatus);
+
+                setUsers((prev) =>
+                  prev.map((u) =>
+                    u._id === user._id
+                      ? { ...u, isSuspended: newStatus }
+                      : u
+                  )
+                );
+
+                toast.dismiss(t.id);
+                toast.success(
+                  `${user.name} ${
+                    newStatus ? "suspended" : "activated"
+                  } successfully`
+                );
+              } catch (error) {
+                toast.dismiss(t.id);
+                toast.error("Failed to update user status");
               }
             }}
           >
@@ -183,6 +242,16 @@ const handleRoleChange = (user: User, newRole: string) => {
                 >
                   Delete
                 </button>
+                <button
+  onClick={() => handleStatus(user)}
+  className={`px-3 py-1 rounded text-white ${
+    user.isSuspended
+      ? "bg-green-600 hover:bg-green-700"
+      : "bg-yellow-600 hover:bg-yellow-700"
+  }`}
+>
+  {user.isSuspended ? "Activate" : "Suspend"}
+</button>
               </td>
             </tr>
           ))}
