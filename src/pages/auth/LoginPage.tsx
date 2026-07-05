@@ -29,7 +29,15 @@ export default function LoginPage() {
         "token",
         data.token
       );
+localStorage.setItem("user", JSON.stringify(data.user));
+auth?.setUser(data.user); 
 
+if(data.user.role==="admin"){
+  navigate("/admin/dashbpoard");
+}
+else{
+   navigate("/app/dashbpoard");
+}
     
 
       auth?.setUser(data.user);

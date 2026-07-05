@@ -1,9 +1,16 @@
 import { createContext, useState } from "react";
 import type { ReactNode } from "react";
 
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+};
+
 type AuthContextType = {
-  user: any;
-  setUser: React.Dispatch<React.SetStateAction<any>>;
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -15,8 +22,10 @@ export default function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState(null);
-  console.log("Auth user:", user);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
