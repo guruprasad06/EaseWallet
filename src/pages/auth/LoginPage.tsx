@@ -33,27 +33,18 @@ localStorage.setItem("user", JSON.stringify(data.user));
 auth?.setUser(data.user); 
 
 if(data.user.role==="admin"){
-  navigate("/admin/dashbpoard");
-}
-else{
-   navigate("/app/dashbpoard");
-}
-    
-
-      auth?.setUser(data.user);
-if(data.user.role ==="admin"){
   navigate("/admin/dashboard");
 }
-else if(data.user.role==="user"){
-  navigate("/app/dashboard");
+else{
+   navigate("/app/dashboard");
 }
-      
-    } catch (error) {
-      console.error(error);
-      toast.error("Invalid Credentials");
-    }
-  };
-
+  
+} catch (error: any) {
+  toast.error(
+    error.response?.data?.message || "Login failed"
+  );
+}
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-950">
       <div className="bg-zinc-900 p-8 rounded-xl w-96">
@@ -100,3 +91,4 @@ else if(data.user.role==="user"){
     </div>
   );
 }
+

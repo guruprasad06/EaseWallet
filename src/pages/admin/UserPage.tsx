@@ -3,7 +3,7 @@ import {
   getAllUsers,
   deleteUser,
   updateUserRole,
-  updateUserStatus,
+  updatedUserStatus,
 } from "../../services/userService";
 import toast from "react-hot-toast";
 
@@ -151,7 +151,7 @@ const handleStatus = (user: User) => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
             onClick={async () => {
               try {
-                await updateUserStatus(user._id, newStatus);
+                await updatedUserStatus(user._id, newStatus);
 
                 setUsers((prev) =>
                   prev.map((u) =>
@@ -236,6 +236,7 @@ const handleStatus = (user: User) => {
               </td>
 
               <td className="p-3">
+                <div className="flex gap-4">
                 <button
                   onClick={() => handleDelete(user)}
                   className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
@@ -251,8 +252,9 @@ const handleStatus = (user: User) => {
   }`}
 >
   {user.isSuspended ? "Activate" : "Suspend"}
-</button>
+</button></div>
               </td>
+              
             </tr>
           ))}
         </tbody>

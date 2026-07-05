@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/userRoutes");
 const vaultRoutes = require("./routes/vaultRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const connectDB = require("./config/db");
 
@@ -20,7 +21,7 @@ app.use("/uploads", express.static("src/uploads"));
 const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/admin", adminRoutes);
 app.get("/", (req, res) => {
   res.json({
     message: "EaseWallet API Running",
