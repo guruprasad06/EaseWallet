@@ -18,6 +18,7 @@ type User = {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -26,7 +27,10 @@ export default function UsersPage() {
         setUsers(data);
       } catch (error) {
         console.error("Failed to fetch users:", error);
-      }
+        
+      }finally {
+  setLoading(false);
+}
     };
 
     fetchUsers();
@@ -190,6 +194,9 @@ const handleStatus = (user: User) => {
     }
   );
 };
+if (loading) {
+  return <div className="text-white text-xl">Loading users...</div>;
+}
 
   return (
     <div>
