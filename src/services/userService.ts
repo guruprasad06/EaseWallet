@@ -31,17 +31,28 @@ export const deleteUser = async(userId:string) => {
 ) => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.patch(
-    `${API_URL}/${userId}/role`,
-    { role },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+ const response = await axios.put(
+  `${API_URL}/${userId}/role`,
+  { role },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
   return response.data;
+};
+export const getProfile = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.get(`${API_URL}/profile`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data.user;
 };
 export const updatedUserStatus = async (
   userId: string,
@@ -52,6 +63,49 @@ export const updatedUserStatus = async (
   const response = await axios.patch(
     `${API_URL}/${userId}/status`,
     { isSuspended },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
+export const updateProfile = async (
+  name: string,
+  email: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+  `${API_URL}/profile`,
+  {
+    name,
+    email,
+    profileImage,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
+  return response.data;
+};
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+    `${API_URL}/change-password`,
+    {
+      currentPassword,
+      newPassword,
+    },
     {
       headers: {
         Authorization: `Bearer ${token}`,

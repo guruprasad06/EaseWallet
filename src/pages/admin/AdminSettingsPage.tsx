@@ -1,74 +1,57 @@
+
 import { useEffect, useState } from "react";
-import {
-  getProfile,
-  updateProfile,
-  changePassword,
-} from "../../services/userService";
+import { getProfile, updateProfile,changePassword } from "../../services/userService";
 import toast from "react-hot-toast";
 
-export default function ProfilePage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-const [profileImage, setProfileImage] = useState("");
+export default function AdminSettingsPage() {
+  const [name, setName] = useState("Admin");
+  const [email, setEmail] = useState("admin@example.com");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await getProfile();
-
-        setName(data.name || "");
-        setEmail(data.email || "");
-        setProfileImage(data.profileImage || "");
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleProfileUpdate = async () => {
+  const fetchProfile = async () => {
     try {
-      await updateProfile(name, email,profileImage);
-      toast.success("Profile updated successfully");
+     const data = await getProfile();
+
+setName(data.name || "");
+setEmail(data.email || "");
     } catch (error) {
-      toast.error("Failed to update profile");
+      console.error(error);
     }
   };
 
-  const handlePasswordChange = async () => {
-    try {
-      await changePassword(currentPassword, newPassword);
+  fetchProfile();
+}, []);
 
-      toast.success("Password changed successfully");
+ const handleSave = async () => {
+  try {
+    await updateProfile(name, email);
 
-      setCurrentPassword("");
-      setNewPassword("");
-    } catch (error) {
-      toast.error("Failed to change password");
+    if (currentPassword && newPassword) {
+      await changePassword(
+        currentPassword,
+        newPassword
+      );
     }
-  };
 
+    toast.success("Settings updated successfully");
+
+    setCurrentPassword("");
+    setNewPassword("");
+  } catch (error) {
+    toast.error("Failed to update settings");
+  }
+};
   return (
     <div className="max-w-3xl mx-auto">
-
       <h1 className="text-3xl font-bold text-white mb-8">
-        👤 My Profile
+        ⚙️ Admin Settings
       </h1>
-      <label>Profile Image URL</label>
-
-<input
-  value={profileImage}
-  onChange={(e) => setProfileImage(e.target.value)}
-/>
 
       <div className="bg-zinc-900 rounded-xl p-8 space-y-6">
 
         <div>
           <label className="text-zinc-400">Name</label>
-
           <input
             className="w-full mt-2 p-3 rounded bg-zinc-800 text-white"
             value={name}
@@ -78,7 +61,6 @@ const [profileImage, setProfileImage] = useState("");
 
         <div>
           <label className="text-zinc-400">Email</label>
-
           <input
             className="w-full mt-2 p-3 rounded bg-zinc-800 text-white"
             value={email}
@@ -86,18 +68,7 @@ const [profileImage, setProfileImage] = useState("");
           />
         </div>
 
-        <button
-          onClick={handleProfileUpdate}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
-        >
-          Update Profile
-        </button>
-
         <hr className="border-zinc-700" />
-
-        <h2 className="text-2xl font-bold text-white">
-          🔒 Change Password
-        </h2>
 
         <div>
           <label className="text-zinc-400">
@@ -130,12 +101,11 @@ const [profileImage, setProfileImage] = useState("");
         </div>
 
         <button
-          onClick={handlePasswordChange}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
+          onClick={handleSave}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg"
         >
-          Change Password
+          Save Changes
         </button>
-
       </div>
     </div>
   );

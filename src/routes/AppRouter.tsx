@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import AnalyticsPage from "../pages/admin/AnalyticsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
-
+import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AppLayout from "../layouts/AppLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import UsersPage from "../pages/admin/UserPage";
@@ -72,12 +72,36 @@ export default function AppRouter() {
           }
         />
         <Route
+  path="/admin/settings"
+  element={
+    <ProtectedRoute>
+      <AdminRoute>
+        <AdminLayout>
+          <AdminSettingsPage />
+        </AdminLayout>
+      </AdminRoute>
+    </ProtectedRoute>
+  }
+/>
+        <Route
   path="/admin/users"
   element={
     <ProtectedRoute>
       <AdminRoute>
         <AdminLayout>
           <UsersPage />
+        </AdminLayout>
+      </AdminRoute>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/admin/analytics"
+  element={
+    <ProtectedRoute>
+      <AdminRoute>
+        <AdminLayout>
+          <AnalyticsPage />
         </AdminLayout>
       </AdminRoute>
     </ProtectedRoute>

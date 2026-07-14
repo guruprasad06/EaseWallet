@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { vaultService } from "../../services/vaultService";
 import useAuth from "../../hooks/useAuth";
+import { Link } from "lucide-react";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -45,6 +46,38 @@ export default function DashboardPage() {
           <h2>Total Documents</h2>
           <p className="text-3xl font-bold">{documents}</p>
         </div>
+         <div className="mt-10 bg-zinc-900 rounded-xl p-6">
+
+        <h2 className="text-2xl font-bold text-white mb-4">
+          Quick Actions
+        </h2>
+
+        <div className="flex gap-4">
+
+          <Link
+            to="/admin/users"
+            className="bg-indigo-600 px-5 py-3 rounded-lg"
+          >
+            Manage Users
+          </Link>
+
+          <Link
+            to="/admin/analytics"
+            className="bg-green-600 px-5 py-3 rounded-lg"
+          >
+            View Analytics
+          </Link>
+
+          <Link
+            to="/admin/settings"
+            className="bg-yellow-600 px-5 py-3 rounded-lg"
+          >
+            Settings
+          </Link>
+
+        </div>
+
+      </div>
       </div>
     </>
   );

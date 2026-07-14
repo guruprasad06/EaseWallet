@@ -1,100 +1,115 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default function AdminDashboardPage() {
-  const [users, setUsers] = useState([]);
-  const [files, setFiles] = useState([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [files, setFiles] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
 
-      const userRes = await axios.get(
-        "http://localhost:5000/api/users/all",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const userRes = await axios.get(
+      "http://localhost:5000/api/users/all",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      const fileRes = await axios.get(
-        "http://localhost:5000/api/vault",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const fileRes = await axios.get(
+      "http://localhost:5000/api/vault",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      setUsers(userRes.data);
-      setFiles(fileRes.data);
-    } catch (error) {
-      console.log(error);
-    }
+    setUsers(userRes.data);
+    setFiles(fileRes.data);
   };
 
-  const totalUsers = users.length;
-
-  const totalAdmins = users.filter(
-    (user: any) => user.role === "admin"
-  ).length;
-
-const suspendedUsers = users.filter(
-  (user: any) => user.isSuspended
-).length;
-
-  const totalFiles = files.length;
+  const admins = users.filter(u => u.role === "admin").length;
+  const suspended = users.filter(u => u.isSuspended).length;
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">
-        Admin Dashboard
+
+      <h1 className="text-4xl font-bold text-white mb-8">
+        👑 Admin Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-        <div className="bg-zinc-800 rounded-xl p-6">
-          <h2 className="text-zinc-400 text-sm">
-            Total Users
+        <div className="bg-zinc-900 p-6 rounded-xl">
+          <p className="text-zinc-400">Users</p>
+          <h2 className="text-4xl font-bold text-white">
+            {users.length}
           </h2>
-          <p className="text-3xl font-bold text-white mt-2">
-            {totalUsers}
-          </p>
         </div>
 
-        <div className="bg-zinc-800 rounded-xl p-6">
-          <h2 className="text-zinc-400 text-sm">
-            Admins
+        <div className="bg-zinc-900 p-6 rounded-xl">
+          <p className="text-zinc-400">Admins</p>
+          <h2 className="text-4xl font-bold text-green-400">
+            {admins}
           </h2>
-          <p className="text-3xl font-bold text-white mt-2">
-            {totalAdmins}
-          </p>
         </div>
 
-        <div className="bg-zinc-800 rounded-xl p-6">
-          <h2 className="text-zinc-400 text-sm">
-            Suspended Users
+        <div className="bg-zinc-900 p-6 rounded-xl">
+          <p className="text-zinc-400">Suspended</p>
+          <h2 className="text-4xl font-bold text-red-400">
+            {suspended}
           </h2>
-          <p className="text-3xl font-bold text-white mt-2">
-            {suspendedUsers}
-          </p>
         </div>
 
-        <div className="bg-zinc-800 rounded-xl p-6">
-          <h2 className="text-zinc-400 text-sm">
-            Total Files
+        <div className="bg-zinc-900 p-6 rounded-xl">
+          <p className="text-zinc-400">Files</p>
+          <h2 className="text-4xl font-bold text-indigo-400">
+            {files.length}
           </h2>
-          <p className="text-3xl font-bold text-white mt-2">
-            {totalFiles}
-          </p>
         </div>
 
       </div>
+
+      <div className="mt-10 bg-zinc-900 rounded-xl p-6">
+
+        <h2 className="text-2xl font-bold text-white mb-4">
+          Quick Actions
+        </h2>
+
+        <div className="flex gap-4">
+
+          <Link
+            to="/admin/users"
+            className="bg-indigo-600 px-5 py-3 rounded-lg"
+          >
+            Manage Users
+          </Link>
+
+          <Link
+            to="/admin/analytics"
+            className="bg-green-600 px-5 py-3 rounded-lg"
+          >
+            View Analytics
+          </Link>
+
+          <Link
+            to="/admin/settings"
+            className="bg-yellow-600 px-5 py-3 rounded-lg"
+          >
+            Settings
+          </Link>
+
+        </div>
+
+      </div>
+
     </div>
   );
 }
