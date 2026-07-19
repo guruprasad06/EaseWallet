@@ -152,7 +152,7 @@ const handleCreateNote = async () => {
         currentIds.filter((selectedId) => selectedId !== id)
       );
 
-      toast.success("Item deleted successfully!");
+      toast.success("Moved to Recycle Bin!");
     } catch (error) {
       console.error(error);
       toast.error("Failed to delete item");
@@ -230,7 +230,7 @@ const confirmSelectedDelete = async (ids: string[]) => {
     await Promise.all(ids.map((id) => vaultService.deleteItem(id)));
     await fetchVaultItems();
     setSelectedIds([]);
-    toast.success("Selected items deleted successfully!");
+    toast.success("Moved selected items to Recycle Bin!");
   } catch (error) {
     console.error(error);
     toast.error("Failed to delete selected items");
@@ -329,7 +329,7 @@ const isNewItem = (createdAt?: string) => {
               id="delete-confirmation-title"
               className="text-xl font-bold text-white"
             >
-              Confirm Delete
+              Move to Recycle Bin?
             </h2>
 
             <p className="mt-3 text-sm text-zinc-300">
@@ -346,14 +346,14 @@ const isNewItem = (createdAt?: string) => {
                 Cancel
               </button>
 
-              <button
-                type="button"
-                onClick={confirmDelete}
-                disabled={isDeleting}
-                className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
+           <button
+  type="button"
+  onClick={confirmDelete}
+  disabled={isDeleting}
+  className="rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isDeleting ? "Moving..." : "Move to Bin"}
+</button>
             </div>
           </div>
         </div>
@@ -672,7 +672,7 @@ const isNewItem = (createdAt?: string) => {
     className="flex flex-1 items-center justify-center gap-2 bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold"
   >
     <Trash2 size={18} />
-    Delete
+    Move to Bin
   </button>
 </div>
 

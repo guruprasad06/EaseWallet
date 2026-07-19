@@ -5,6 +5,7 @@ import {
   changePassword,
 } from "../../services/userService";
 import toast from "react-hot-toast";
+import { UserRound } from "lucide-react";
 
 export default function ProfilePage() {
   const [name, setName] = useState("");

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  ChartColumn,
+  HardDrive,
+} from "lucide-react";
+
 
 export default function AnalyticsPage() {
 

@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Users,
+  ChartColumn,
+  HardDrive,
+} from "lucide-react";
 
 export default function AdminDashboardPage() {
   const [users, setUsers] = useState<any[]>([]);

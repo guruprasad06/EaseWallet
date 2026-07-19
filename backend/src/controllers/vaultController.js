@@ -29,9 +29,12 @@ const getVaultItems = async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
-    const items = await VaultItem.find({
-      userId: req.user.id,
-    }).skip(skip).limit(limit);
+ const items = await VaultItem.find({
+  userId: req.user.id,
+  isDeleted: false,
+})
+  .skip(skip)
+  .limit(limit);
 
     res.status(200).json(items);
   } catch (error) {
@@ -52,17 +55,19 @@ const deleteVaultItem = async (req, res) => {
       });
     }
 
-    // Security check - only owner can delete
     if (item.userId.toString() !== req.user.id) {
       return res.status(403).json({
         message: "Not authorized",
       });
     }
 
-    await item.deleteOne();
+    item.isDeleted = true;
+    item.deletedAt = new Date();
+
+    await item.save();
 
     res.status(200).json({
-      message: "Vault item deleted successfully",
+      message: "Moved to Recycle Bin",
     });
   } catch (error) {
     res.status(500).json({
@@ -128,7 +133,77 @@ const togglePin = async (req, res) => {
     });
   }
 };
+const getRecycleBinItems = async (req, res) => {
+  try {
+    const items = await VaultItem.find({
+      userId: req.user.id,
+      isDeleted: true,
+    }).sort({ deletedAt: -1 });
 
+    res.status(200).json(items);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const restoreVaultItem = async (req, res) => {
+  try {
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Vault item not found",
+      });
+    }
+
+    if (item.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    item.isDeleted = false;
+    item.deletedAt = null;
+
+    await item.save();
+
+    res.status(200).json({
+      message: "File restored successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const permanentlyDeleteVaultItem = async (req, res) => {
+  try {
+    const item = await VaultItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Vault item not found",
+      });
+    }
+
+    if (item.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    await item.deleteOne();
+
+    res.status(200).json({
+      message: "File permanently deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   createVaultItem,
@@ -136,4 +211,7 @@ module.exports = {
   deleteVaultItem,
   updateVaultItem,
   togglePin,
+  getRecycleBinItems,
+  restoreVaultItem,
+  permanentlyDeleteVaultItem,
 };

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { vaultService } from "../../services/vaultService";
 import useAuth from "../../hooks/useAuth";
 import { Link } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<any[]>([]);

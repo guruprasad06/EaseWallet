@@ -75,7 +75,7 @@ export const updatedUserStatus = async (
 export const updateProfile = async (
   name: string,
   email: string,
-  profileImage: string
+  profileImage?: string
 ) => {
   const token = localStorage.getItem("token");
 
@@ -84,7 +84,7 @@ export const updateProfile = async (
     {
       name,
       email,
-      profileImage,
+      ...(profileImage && { profileImage }),
     },
     {
       headers: {

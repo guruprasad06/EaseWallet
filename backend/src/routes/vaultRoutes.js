@@ -7,7 +7,10 @@ const {
   getVaultItems,
   deleteVaultItem,
   updateVaultItem,
-  togglePin
+  togglePin,
+  getRecycleBinItems,
+  restoreVaultItem,
+  permanentlyDeleteVaultItem,
 } = require("../controllers/vaultController");
 
 const router = express.Router();
@@ -20,6 +23,12 @@ router.delete("/:id", protect, deleteVaultItem);
 
 router.put("/:id", protect, updateVaultItem);
 router.patch("/:id/pin", protect, togglePin);
+// Recycle Bin
+router.get("/recycle-bin", protect, getRecycleBinItems);
+
+router.put("/restore/:id", protect, restoreVaultItem);
+
+router.delete("/permanent/:id", protect, permanentlyDeleteVaultItem);
 const VaultItem = require("../models/VaultItem");
 
 router.post(

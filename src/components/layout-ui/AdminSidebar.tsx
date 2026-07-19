@@ -1,6 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
+import {
+  LayoutDashboard,
+  Users,
+  ChartColumn,
+  Settings,
+  LogOut,
+  History,
+} from "lucide-react";
+
 export default function AdminSidebar() {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -44,6 +53,16 @@ export default function AdminSidebar() {
         >
           📈 Analytics
         </NavLink>
+        <NavLink
+  to="/admin/recovery"
+  className={({ isActive }) =>
+    isActive
+      ? "bg-indigo-600 p-3 rounded"
+      : "bg-zinc-800 p-3 rounded hover:bg-zinc-700"
+  }
+>
+  ♻ Recovery Center
+</NavLink>
 
         <NavLink
           to="/admin/settings"

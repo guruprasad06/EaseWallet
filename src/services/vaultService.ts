@@ -39,6 +39,40 @@ getItems: async (page = 1, limit = 12) => {
 
     return response.data;
   },
+  getRecycleBin: async () => {
+  const response = await axios.get(`${API_URL}/recycle-bin`, {
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+
+  return response.data;
+},
+restoreItem: async (id: string) => {
+  const response = await axios.put(
+    `${API_URL}/restore/${id}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+
+  return response.data;
+},
+permanentDelete: async (id: string) => {
+  const response = await axios.delete(
+    `${API_URL}/permanent/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    }
+  );
+
+  return response.data;
+},
 
   updateItem: async (id: string, item: VaultItemInput): Promise<VaultItem> => {
     const response = await axios.put(`${API_URL}/${id}`, item, {

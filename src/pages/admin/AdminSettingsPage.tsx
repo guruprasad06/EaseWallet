@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getProfile, updateProfile,changePassword } from "../../services/userService";
 import toast from "react-hot-toast";
+import { Settings } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const [name, setName] = useState("Admin");

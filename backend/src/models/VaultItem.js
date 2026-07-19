@@ -22,17 +22,29 @@ const vaultItemSchema = new mongoose.Schema(
     content: {
       type: String,
     },
+
     isPinned: {
-  type: Boolean,
-  default: false,
-},
+      type: Boolean,
+      default: false,
+    },
+
+    // ==========================
+    // Recycle Bin Fields
+    // ==========================
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model(
-  "VaultItem",
-  vaultItemSchema
-);
+module.exports = mongoose.model("VaultItem", vaultItemSchema);

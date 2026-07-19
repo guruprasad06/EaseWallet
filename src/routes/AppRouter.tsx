@@ -8,11 +8,11 @@ import AdminLayout from "../layouts/AdminLayout";
 import UsersPage from "../pages/admin/UserPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
-
+import RecycleBinPage from "../pages/app/RecycleBinPage";
 import DashboardPage from "../pages/app/DashboardPage";
 import MyVaultPage from "../pages/app/MyVaultPage";
 import ProfilePage from "../pages/app/ProfilePage";
-
+import AdminRecoveryPage from "../pages/admin/AdminRecoveryPage";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 
 export default function AppRouter() {
@@ -102,6 +102,28 @@ export default function AppRouter() {
       <AdminRoute>
         <AdminLayout>
           <AnalyticsPage />
+        </AdminLayout>
+      </AdminRoute>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/app/recycle-bin"
+  element={
+    <ProtectedRoute>
+      <AppLayout>
+        <RecycleBinPage />
+      </AppLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/admin/recovery"
+  element={
+    <ProtectedRoute>
+      <AdminRoute>
+        <AdminLayout>
+          <AdminRecoveryPage />
         </AdminLayout>
       </AdminRoute>
     </ProtectedRoute>
