@@ -31,25 +31,34 @@ const [profileImage, setProfileImage] = useState("");
 
   const handleProfileUpdate = async () => {
     try {
-      await updateProfile(name, email,profileImage);
+    await updateProfile(
+  name,
+  email,
+  profileImage
+);
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error("Failed to update profile");
     }
   };
 
-  const handlePasswordChange = async () => {
-    try {
-      await changePassword(currentPassword, newPassword);
+const handlePasswordChange = async () => {
+  if (!currentPassword || !newPassword) {
+    toast.error("Please fill in both password fields");
+    return;
+  }
 
-      toast.success("Password changed successfully");
+  try {
+    await changePassword(currentPassword, newPassword);
 
-      setCurrentPassword("");
-      setNewPassword("");
-    } catch (error) {
-      toast.error("Failed to change password");
-    }
-  };
+    toast.success("Password changed successfully");
+
+    setCurrentPassword("");
+    setNewPassword("");
+  } catch (error) {
+    toast.error("Failed to change password");
+  }
+};
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -57,17 +66,23 @@ const [profileImage, setProfileImage] = useState("");
       <h1 className="text-3xl font-bold text-white mb-8">
         👤 My Profile
       </h1>
-      <label>Profile Image URL</label>
+    <div className="flex flex-col items-center mb-6">
 
-<input
-  value={profileImage}
-  onChange={(e) => setProfileImage(e.target.value)}
-/>
+  <img
+    src={profileImage || "https://via.placeholder.com/120"}
+    alt="Profile"
+    className="w-28 h-28 rounded-full object-cover border-2 border-zinc-600 mb-4"
+  />
 
-      <div className="bg-zinc-900 rounded-xl p-8 space-y-6">
 
-        <div>
-          <label className="text-zinc-400">Name</label>
+
+</div>
+  <div className="bg-zinc-900 rounded-xl p-8 space-y-6">
+
+
+
+  <div>
+    <label className="text-zinc-400">Name</label>
 
           <input
             className="w-full mt-2 p-3 rounded bg-zinc-800 text-white"

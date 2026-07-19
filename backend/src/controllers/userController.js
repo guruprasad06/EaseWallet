@@ -17,7 +17,19 @@ const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
     const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
     const isMatch = await bcrypt.compare(
       currentPassword,
@@ -99,10 +111,6 @@ const updateProfile = async (req, res) => {
   try {
     const { name, email, profileImage } = req.body;
 
-user.name = name;
-user.email = email;
-user.profileImage = profileImage;
-
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -113,6 +121,7 @@ user.profileImage = profileImage;
 
     user.name = name;
     user.email = email;
+    user.profileImage = profileImage;
 
     await user.save();
 

@@ -74,23 +74,24 @@ export const updatedUserStatus = async (
 };
 export const updateProfile = async (
   name: string,
-  email: string
+  email: string,
+  profileImage: string
 ) => {
   const token = localStorage.getItem("token");
 
   const response = await axios.put(
-  `${API_URL}/profile`,
-  {
-    name,
-    email,
-    profileImage,
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
+    `${API_URL}/profile`,
+    {
+      name,
+      email,
+      profileImage,
     },
-  }
-);
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   return response.data;
 };
